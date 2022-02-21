@@ -23,13 +23,21 @@ root.style = "position: absolute; top: 50%; left: 50%; transform: translate(-50%
 /*
     Pitch layout
 */
-const border = document.createElement("div");
-border.style = "position: absolute; top: 1rem; left: 1rem; width: calc(100% - 3rem); height: calc(100% - 3rem); border: 0.5rem dashed " + white + ";";
-root.appendChild(border);
+const pitch = document.createElement("div");
+pitch.style = "position: absolute; top: 1rem; left: 1rem; width: calc(100% - 3rem); height: calc(100% - 3rem); border: 0.5rem dashed " + white + ";";
 
 const centerLine = document.createElement("div");
 centerLine.style = "position: absolute; top: 2rem; left: 50%; transform: translateX(-50%); height: calc(100% - 4rem); border-right: 0.5rem dashed " + white + ";";
-root.appendChild(centerLine);
+
+pitch.appendChild(centerLine);
+root.appendChild(pitch);
+
+/*
+    Score
+*/
+const score = document.createElement("div");
+score.style = "position: absolute; width: 100%; bottom: -6rem; font-size: 3rem; text-align: center; color: #FFF; font-family: monospace;";
+pitch.appendChild(score);
 
 /*
     Players
@@ -54,6 +62,10 @@ const playerPace = 3;
 const playerUpper = 15;
 const playerLower = 85;
 
+let player1Score = 0;
+let player2Score = 0;
+score.innerHTML = player1Score + ' - ' + player2Score;
+
 /****** LOGIC - FUNCTIONS *******/
 function KeyW() {
     movePlayer(player1, true);
@@ -73,6 +85,13 @@ function ArrowDown() {
 
 function Enter() {
     console.log("START GAME?");
+}
+
+function updateScore(player) {
+    if(player.id === 'player1') player1Score++;
+    if(player.id === 'player2') player2Score++;
+
+    score.innerHTML = player1Score + ' - ' + player2Score;
 }
 
 const setupInteractions = () => {

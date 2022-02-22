@@ -133,6 +133,7 @@ function Enter() {
             gameInProgress = false;
         } else {
             showStartGame(false);
+            restartPuck(((Math.random() > 0.5) ? puckHorizontalSpeed_initial * -1 : puckHorizontalSpeed_initial));
             gameInProgress = true;
         }
     }
@@ -156,6 +157,8 @@ const resetGame = () => {
 
     player1Score = 0;
     player2Score = 0;
+
+    gameInProgress = false;
 
     resetPuck();
 

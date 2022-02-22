@@ -29,6 +29,12 @@ startGame.id = "startGame";
 startGame.innerHTML = "<h1 style='font-size: 1rem; margin: 0; padding: 0;'>Click 'Enter' to start 😄</h1>";
 pitch.appendChild(startGame);
 
+const pauseMenu = document.createElement("div");
+pauseMenu.style = "position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 2; background-color: " + darkBlue + "; padding: 2rem; text-align: center; opacity: 0; transition: opacity 0.2s ease-in-out;";
+pauseMenu.id = "pauseMenu";
+pauseMenu.innerHTML = "<h1 style='font-size: 1rem; margin: 0 0 1rem 0; padding: 0; display: block;'>Paused</h1><a style='display: inline-block;'>Continue<br/<span style='font-size: 0.8rem;'>(Esc)</span></a> <a style='display: inline-block'>Reset<br/><span style='font-size: 0.8rem;'>(Enter)</span></a>";
+pitch.appendChild(pauseMenu);
+
 const info = document.createElement("div");
 info.style = "position: absolute; width: 100%; bottom: -7rem; font-size: 0.8rem; text-align: center;";
 info.innerHTML = "Pong.js - A development challenge. Find out more @ <a href='https://davidford.me' style='color: " + white + ";'>davidford.me</a>.";
@@ -84,6 +90,9 @@ const playerRefreshSpeed = 50;
 const directionUp = "up";
 const directionDown = "down";
 
+let gameInProgress = false;
+let pauseMenuVisible = false;
+
 let player1Moving = false;
 let player2Moving = false;
 let player1Direction = directionUp;
@@ -111,11 +120,31 @@ function ArrowDown(down) {
 }
 
 function Enter() {
-    console.log("START GAME?");
-    showStartGame(false);
+    if(!gameInProgress) {
+        if(pauseMenuVisible) {
+            showPauseMenu(false);
+            resetGame();
+            gameInProgress = false;
+        } else {
+            showStartGame(false);
+            gameInProgress = true;
+        }
+    }
 }
 
 function Escape() {
+    if(!pauseMenuVisible && gameInProgress) {
+        showPauseMenu(true);
+        gameInProgress = false;
+    }
+
+    if(pauseMenuVisible && !gameInProgress) {
+        showPauseMenu(false);
+        gameInProgress = true;
+    }
+}
+
+const resetGame = () => {
     player1.style.top = "50%";
     player2.style.top = "50%";
 
@@ -126,13 +155,23 @@ function Escape() {
     showStartGame(true);
 }
 
-function showStartGame(show = true) {
+const showPauseMenu = (show = true) => {
+    if(show) pauseMenu.style.opacity = 1;
+    else pauseMenu.style.opacity = 0;
+    pauseMenu.style.transition = "opacity 0.2s ease-in-out";
+
+    setTimeout(() => {
+        pauseMenuVisible = show;
+    }, 250);
+}
+
+const showStartGame = (show = true) => {    
     if(show) startGame.style.opacity = 1;
     else startGame.style.opacity = 0;
     startGame.style.transition = "opacity 0.2s ease-in-out";
 }
 
-function updateScore(player = false) {
+const updateScore = (player = false) => {
     if(player && player.id === 'player1') player1Score++;
     if(player && player.id === 'player2') player2Score++;
 
@@ -165,8 +204,8 @@ const setPlayerMoving = (player, down = false, direction = directionUp) => {
 }
 
 const checkMovement = () => {
-    if(player1Moving) movePlayer(player1, (player1Direction === directionUp));
-    if(player2Moving) movePlayer(player2, (player2Direction === directionUp));
+    if(player1Moving && gameInProgress) movePlayer(player1, (player1Direction === directionUp));
+    if(player2Moving && gameInProgress) movePlayer(player2, (player2Direction === directionUp));
 }
 
 const setupInteractions = () => {

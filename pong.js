@@ -61,55 +61,56 @@ root.appendChild(player2);
 const playerPace = 3;
 const playerUpper = 15;
 const playerLower = 85;
+const playerRefreshSpeed = 50;
+
+const directionUp = "up";
+const directionDown = "down";
+
+let player1Moving = false;
+let player2Moving = false;
+let player1Direction = directionUp;
+let player2Direction = directionUp;
 
 let player1Score = 0;
 let player2Score = 0;
 score.innerHTML = player1Score + ' - ' + player2Score;
 
 /****** LOGIC - FUNCTIONS *******/
-function KeyW() {
-    movePlayer(player1, true);
+function KeyW(down) {
+    setPlayerMoving(player1, down, directionUp);
 }
 
-function KeyS() {
-    movePlayer(player1, false);
+function KeyS(down) {
+    setPlayerMoving(player1, down, directionDown);
 }
 
-function ArrowUp() {
-    movePlayer(player2, true);
+function ArrowUp(down) {
+    setPlayerMoving(player2, down, directionUp);
 }
 
-function ArrowDown() {
-    movePlayer(player2, false);
+function ArrowDown(down) {
+    setPlayerMoving(player2, down, directionDown);
 }
 
 function Enter() {
     console.log("START GAME?");
 }
 
-function updateScore(player) {
-    if(player.id === 'player1') player1Score++;
-    if(player.id === 'player2') player2Score++;
+function Escape() {
+    player1.style["top"] = "50%";
+    player2.style["top"] = "50%";
 
-    score.innerHTML = player1Score + ' - ' + player2Score;
+    player1Score = 0;
+    player2Score = 0;
+
+    updateScore();
 }
 
-const setupInteractions = () => {
+function updateScore(player = false) {
+    if(player && player.id === 'player1') player1Score++;
+    if(player && player.id === 'player2') player2Score++;
 
-    const acceptedKeys = ["KeyW", "KeyS", "ArrowUp", "ArrowDown", "Enter"];
-
-    const keyUpdate = (event) => {
-        if(acceptedKeys.includes(event.code)) {
-            event.preventDefault();
-            
-            const funct = window[event.code];
-            if(typeof funct === 'function') funct();
-        }
-    }
-
-    document.addEventListener("keydown", event => {
-        keyUpdate(event);
-    });
+    score.innerHTML = player1Score + ' - ' + player2Score;
 }
 
 const movePlayer = (selectedPlayer, positivity) => {
@@ -125,6 +126,56 @@ const movePlayer = (selectedPlayer, positivity) => {
     selectedPlayer.style["top"] = currentPosition + "%";
 }
 
-window.onload = (event) => {
+const setPlayerMoving = (player, down = false, direction = directionUp) => {
+    if(player.id === 'player1') {
+        player1Moving = down;
+        player1Direction = direction;
+    }
+
+    if(player.id === 'player2') {
+        player2Moving = down;
+        player2Direction = direction;
+    }
+}
+
+const checkMovement = () => {
+    if(player1Moving) movePlayer(player1, (player1Direction === directionUp));
+    if(player2Moving) movePlayer(player2, (player2Direction === directionUp));
+}
+
+const setupInteractions = () => {
+
+    const movementKeys = ["KeyW", "KeyS", "ArrowUp", "ArrowDown"];
+    const menuKeys = ["Enter", "Escape"];
+
+    const keyUpdate = (event, keyDown = false) => {
+        if(movementKeys.includes(event.code) || menuKeys.includes(event.code)) {
+            event.preventDefault();
+
+            let shouldUpdate = false;
+            if(movementKeys.includes(event.code)) shouldUpdate = true;
+            if(menuKeys.includes(event.code) && !keyDown) shouldUpdate = true;
+
+            const funct = window[event.code];
+            if(typeof funct === 'function' && shouldUpdate) {
+                funct(keyDown);
+            }
+        }
+    }
+
+    document.addEventListener("keydown", event => {
+        keyUpdate(event, true);
+    });
+
+    document.addEventListener("keyup", event => {
+        keyUpdate(event);
+    });
+}
+
+window.onload = () => {
     setupInteractions();
+
+    setInterval(() => {
+        checkMovement();
+    }, playerRefreshSpeed);
 }

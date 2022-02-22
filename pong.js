@@ -11,32 +11,50 @@ const darkBlue = '#111926';
 */
 const body = document.getElementsByTagName('body')[0];
 const html = document.getElementsByTagName('html')[0];
-const root = document.getElementById('root');
+const pitch = document.getElementById('root');
 
 const setupStyles = "margin: 0; padding: 0; width: 100vw; height: 100vh; position: relative;";
 
-body.style = setupStyles + " background-color: " + darkBlue + ";";
+body.style = setupStyles + " background-color: " + darkBlue + "; color: #FFF; font-family: monospace;";
 html.style = setupStyles;
 
-root.style = "position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 40rem; height: 30rem; background-color: " + lightBlue + ";"
+pitch.style = "position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 40rem; height: 30rem; background-color: " + lightBlue + ";"
+
+/*
+    Interface
+*/
+const startGame = document.createElement("div");
+startGame.style = "position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 2; background-color: " + darkBlue + "; padding: 2rem; text-align: center; opacity: 1; transition: opacity 0.2s ease-in-out;";
+startGame.id = "startGame";
+startGame.innerHTML = "<h1 style='font-size: 1rem; margin: 0; padding: 0;'>Click 'Enter' to start 😄</h1>";
+pitch.appendChild(startGame);
+
+const info = document.createElement("div");
+info.style = "position: absolute; width: 100%; bottom: -7rem; font-size: 0.8rem; text-align: center;";
+info.innerHTML = "Pong.js - A development challenge. Find out more @ <a href='https://davidford.me' style='color: " + white + ";'>davidford.me</a>.";
+pitch.appendChild(info);
 
 /*
     Pitch layout
 */
-const pitch = document.createElement("div");
-pitch.style = "position: absolute; top: 1rem; left: 1rem; width: calc(100% - 3rem); height: calc(100% - 3rem); border: 0.5rem dashed " + white + ";";
+const perimeter = document.createElement("div");
+perimeter.style = "position: absolute; top: 1rem; left: 1rem; width: calc(100% - 3rem); height: calc(100% - 3rem); border: 0.5rem dashed " + white + ";";
 
 const centerLine = document.createElement("div");
 centerLine.style = "position: absolute; top: 2rem; left: 50%; transform: translateX(-50%); height: calc(100% - 4rem); border-right: 0.5rem dashed " + white + ";";
 
-pitch.appendChild(centerLine);
-root.appendChild(pitch);
+const puck = document.createElement("div");
+puck.style = "width: 2rem; height: 2rem; border-radius: 2rem; background-color: " + white + "; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);";
+
+perimeter.appendChild(centerLine);
+perimeter.appendChild(puck);
+pitch.appendChild(perimeter);
 
 /*
     Score
 */
 const score = document.createElement("div");
-score.style = "position: absolute; width: 100%; bottom: -6rem; font-size: 3rem; text-align: center; color: #FFF; font-family: monospace;";
+score.style = "position: absolute; width: 100%; bottom: -5rem; font-size: 3rem; text-align: center;";
 pitch.appendChild(score);
 
 /*
@@ -46,15 +64,15 @@ const player = document.createElement("div");
 player.style = "position: absolute; top: 50%; transform: translateY(-50%); height: 4rem; width: 0.5rem; background-color: " + white + ";";
 
 const player1 = player.cloneNode(true);
-player1.style['left'] = "2.5rem";
+player1.style.left = "2.5rem";
 player1.id = 'player1';
 
 const player2 = player.cloneNode(true);
-player2.style['right'] = "2.5rem";
+player2.style.right = "2.5rem";
 player2.id = 'player2';
 
-root.appendChild(player1);
-root.appendChild(player2);
+pitch.appendChild(player1);
+pitch.appendChild(player2);
 
 
 /****** LOGIC - VARIABLES *******/
@@ -94,16 +112,24 @@ function ArrowDown(down) {
 
 function Enter() {
     console.log("START GAME?");
+    showStartGame(false);
 }
 
 function Escape() {
-    player1.style["top"] = "50%";
-    player2.style["top"] = "50%";
+    player1.style.top = "50%";
+    player2.style.top = "50%";
 
     player1Score = 0;
     player2Score = 0;
 
     updateScore();
+    showStartGame(true);
+}
+
+function showStartGame(show = true) {
+    if(show) startGame.style.opacity = 1;
+    else startGame.style.opacity = 0;
+    startGame.style.transition = "opacity 0.2s ease-in-out";
 }
 
 function updateScore(player = false) {
@@ -123,7 +149,7 @@ const movePlayer = (selectedPlayer, positivity) => {
     if(currentPosition <= playerUpper) currentPosition = playerUpper;
     if(currentPosition >= playerLower) currentPosition = playerLower;
 
-    selectedPlayer.style["top"] = currentPosition + "%";
+    selectedPlayer.style.top = currentPosition + "%";
 }
 
 const setPlayerMoving = (player, down = false, direction = directionUp) => {

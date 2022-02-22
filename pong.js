@@ -167,15 +167,18 @@ function Escape() {
     }
 }
 
-const resetGame = () => {
+const resetPlayers = () => {
     player1.style.top = "50%";
     player2.style.top = "50%";
+}
 
+const resetGame = () => {
     player1Score = 0;
     player2Score = 0;
 
     gameInProgress = false;
 
+    resetPlayers();
     resetPuck();
 
     updateScore();
@@ -231,6 +234,8 @@ const setPlayerMoving = (player, down = false, direction = directionUp) => {
 }
 
 const movePuck = () => {
+    detectHit();
+
     let newPosition = parseInt(puck.style.left.replace("%", '')) + puckHorizontalSpeed;
 
     puck.style.left = newPosition + "%";
@@ -246,6 +251,10 @@ const movePuck = () => {
     }
 }
 
+const detectHit = () => {
+    
+}
+
 const resetPuck = () => {
     gameInProgress = false;
 
@@ -257,6 +266,7 @@ const resetPuck = () => {
 
 const restartPuck = (positive) => {
     resetPuck();
+    resetPlayers();
 
     countDown.style.opacity = 1;
     countDownTimer.innerText = "Ready";

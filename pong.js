@@ -157,10 +157,7 @@ const resetGame = () => {
     player1Score = 0;
     player2Score = 0;
 
-    puckVerticalSpeed = 0;
-    puckHorizontalSpeed = puckHorizontalSpeed_initial;
-    puck.style.top = "50%";
-    puck.style.left = "50%";
+    resetPuck();
 
     updateScore();
     showStartGame(true);
@@ -214,29 +211,57 @@ const setPlayerMoving = (player, down = false, direction = directionUp) => {
     }
 }
 
+const resetPuck = () => {
+    puckVerticalSpeed = 0;
+    puckHorizontalSpeed = 0;
+    puck.style.top = "50%";
+    puck.style.left = "50%";
+}
+
 const movePuck = () => {
     let newPosition = parseInt(puck.style.left.replace("%", '')) + puckHorizontalSpeed;
 
+    puck.style.left = newPosition + "%";
+
     if(newPosition >= puckMaxRight) {
         newPosition = puckMaxRight;
-        updatePuckSpeed();
+        registerGoal();
     }
 
     if(newPosition <= puckMaxLeft) {
         newPosition = puckMaxLeft;
-        updatePuckSpeed();
+        registerGoal();
+    }
+}
+
+const restartPuck = (positive) => {
+    setTimeout(() => {
+        console.log('restartPuck - GO');
+        gameInProgress = true;
+        puckHorizontalSpeed = (positive) ? puckHorizontalSpeed_initial : puckHorizontalSpeed_initial * -1;
+    }, 3000);
+}
+
+const registerGoal = () => {
+    gameInProgress = false;
+
+    const hitPos = parseInt(puck.style.left.replace("%", ''));
+
+    resetPuck();
+
+    if(hitPos > 50) {
+        player1Score = player1Score + 1;
+        restartPuck(true);
+    } else {
+        player2Score = player2Score + 1;
+        restartPuck(false);
     }
 
-    puck.style.left = newPosition + "%";
+    updateScore();
 }
 
 const updatePuckSpeed = (positive = true) => {
-    console.log("updatePuckSpeed");
-
     puckHorizontalSpeed = puckHorizontalSpeed * -1;
-
-    console.log({puckHorizontalSpeed});
-
 }
 
 const checkMovement = () => {

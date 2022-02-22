@@ -24,16 +24,32 @@ pitch.style = "position: absolute; top: 50%; left: 50%; transform: translate(-50
     Interface
 */
 const startGame = document.createElement("div");
-startGame.style = "position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 2; background-color: " + darkBlue + "; padding: 2rem; text-align: center; opacity: 1; transition: opacity 0.2s ease-in-out;";
+startGame.style = "position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 2; background-color: " + darkBlue + "; padding: 2rem; text-align: center; opacity: 1; transition: opacity 0.2s ease-in-out; border-radius: 2rem;";
 startGame.id = "startGame";
 startGame.innerHTML = "<h1 style='font-size: 1rem; margin: 0; padding: 0;'>Click 'Enter' to start 😄</h1>";
 pitch.appendChild(startGame);
 
 const pauseMenu = document.createElement("div");
-pauseMenu.style = "position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 2; background-color: " + darkBlue + "; padding: 2rem; text-align: center; opacity: 0; transition: opacity 0.2s ease-in-out;";
+pauseMenu.style = "position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 2; background-color: " + darkBlue + "; padding: 2rem; text-align: center; opacity: 0; transition: opacity 0.2s ease-in-out; border-radius: 2rem;";
 pauseMenu.id = "pauseMenu";
 pauseMenu.innerHTML = "<h1 style='font-size: 1rem; margin: 0 0 1rem 0; padding: 0; display: block;'>Paused</h1><a style='display: inline-block;'>Continue<br/<span style='font-size: 0.8rem;'>(Esc)</span></a> <a style='display: inline-block'>Reset<br/><span style='font-size: 0.8rem;'>(Enter)</span></a>";
 pitch.appendChild(pauseMenu);
+
+const goalMessage = document.createElement("div");
+goalMessage.style = "position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 2; background-color: " + darkBlue + "; padding: 2rem; text-align: center; opacity: 0; border-radius: 2rem;";
+goalMessage.id = "goalMessage";
+goalMessage.innerHTML = "<h1 style='font-size: 1.4rem; margin: 0; padding: 0; display: block;'>GOOOOOAAALLL!</h1>";
+pitch.appendChild(goalMessage);
+
+const countDownTimer = document.createElement("h1");
+countDownTimer.style = "font-size: 1.4rem; margin: 0; padding: 0; display: block;";
+countDownTimer.innerText = "Ready";
+
+const countDown = document.createElement("div");
+countDown.style = "position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 2; background-color: " + darkBlue + "; padding: 2rem; text-align: center; opacity: 0; border-radius: 2rem;";
+countDown.id = "countDown";
+countDown.appendChild(countDownTimer);
+pitch.appendChild(countDown);
 
 const info = document.createElement("div");
 info.style = "position: absolute; width: 100%; bottom: -7rem; font-size: 0.8rem; text-align: center;";
@@ -214,13 +230,6 @@ const setPlayerMoving = (player, down = false, direction = directionUp) => {
     }
 }
 
-const resetPuck = () => {
-    puckVerticalSpeed = 0;
-    puckHorizontalSpeed = 0;
-    puck.style.top = "50%";
-    puck.style.left = "50%";
-}
-
 const movePuck = () => {
     let newPosition = parseInt(puck.style.left.replace("%", '')) + puckHorizontalSpeed;
 
@@ -237,9 +246,31 @@ const movePuck = () => {
     }
 }
 
+const resetPuck = () => {
+    gameInProgress = false;
+
+    puckVerticalSpeed = 0;
+    puckHorizontalSpeed = 0;
+    puck.style.top = "50%";
+    puck.style.left = "50%";
+}
+
 const restartPuck = (positive) => {
+    resetPuck();
+
+    countDown.style.opacity = 1;
+    countDownTimer.innerText = "Ready";
+
     setTimeout(() => {
-        console.log('restartPuck - GO');
+        countDownTimer.innerText = "Set";
+
+        setTimeout(() => {
+            countDownTimer.innerText = "GO!";
+        }, 1000);
+    }, 1000);
+
+    setTimeout(() => {
+        countDown.style.opacity = 0;
         gameInProgress = true;
         puckHorizontalSpeed = (positive) ? puckHorizontalSpeed_initial : puckHorizontalSpeed_initial * -1;
     }, 3000);
@@ -250,14 +281,22 @@ const registerGoal = () => {
 
     const hitPos = parseInt(puck.style.left.replace("%", ''));
 
-    resetPuck();
-
     if(hitPos > 50) {
         player1Score = player1Score + 1;
-        restartPuck(true);
+        goalMessage.style.opacity = 1;
+
+        setTimeout(() => {
+            goalMessage.style.opacity = 0;
+            restartPuck(true);
+        }, 2000);
     } else {
         player2Score = player2Score + 1;
-        restartPuck(false);
+        goalMessage.style.opacity = 1;
+
+        setTimeout(() => {
+            goalMessage.style.opacity = 0;
+            restartPuck(false);
+        }, 2000);
     }
 
     updateScore();

@@ -87,6 +87,12 @@ const playerUpper = 15;
 const playerLower = 85;
 const playerRefreshSpeed = 50;
 
+const puckHorizontalSpeed_initial = 2;
+let puckHorizontalSpeed = ((Math.random() > 0.5) ? puckHorizontalSpeed_initial * -1 : puckHorizontalSpeed_initial);
+let puckVerticalSpeed = 0;
+const puckMaxRight = 97;
+const puckMaxLeft = 3;
+
 const directionUp = "up";
 const directionDown = "down";
 
@@ -151,6 +157,11 @@ const resetGame = () => {
     player1Score = 0;
     player2Score = 0;
 
+    puckVerticalSpeed = 0;
+    puckHorizontalSpeed = puckHorizontalSpeed_initial;
+    puck.style.top = "50%";
+    puck.style.left = "50%";
+
     updateScore();
     showStartGame(true);
 }
@@ -203,9 +214,36 @@ const setPlayerMoving = (player, down = false, direction = directionUp) => {
     }
 }
 
+const movePuck = () => {
+    let newPosition = parseInt(puck.style.left.replace("%", '')) + puckHorizontalSpeed;
+
+    if(newPosition >= puckMaxRight) {
+        newPosition = puckMaxRight;
+        updatePuckSpeed();
+    }
+
+    if(newPosition <= puckMaxLeft) {
+        newPosition = puckMaxLeft;
+        updatePuckSpeed();
+    }
+
+    puck.style.left = newPosition + "%";
+}
+
+const updatePuckSpeed = (positive = true) => {
+    console.log("updatePuckSpeed");
+
+    puckHorizontalSpeed = puckHorizontalSpeed * -1;
+
+    console.log({puckHorizontalSpeed});
+
+}
+
 const checkMovement = () => {
     if(player1Moving && gameInProgress) movePlayer(player1, (player1Direction === directionUp));
     if(player2Moving && gameInProgress) movePlayer(player2, (player2Direction === directionUp));
+
+    if(gameInProgress) movePuck();
 }
 
 const setupInteractions = () => {

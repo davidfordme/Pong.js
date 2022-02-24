@@ -108,6 +108,8 @@ let puckHorizontalSpeed = ((Math.random() > 0.5) ? puckHorizontalSpeed_initial *
 let puckVerticalSpeed = 0;
 const puckMaxRight = 97;
 const puckMaxLeft = 3;
+const puckMinVertical = 3;
+const puckMaxVertical = 97;
 
 const directionUp = "up";
 const directionDown = "down";
@@ -236,19 +238,33 @@ const setPlayerMoving = (player, down = false, direction = directionUp) => {
 const movePuck = () => {
     detectHit();
 
-    let newPosition = parseInt(puck.style.left.replace("%", '')) + puckHorizontalSpeed;
+    let newPosition = {
+        left: convertPercentageToInt(puck.style.left) + puckHorizontalSpeed,
+        top: convertPercentageToInt(puck.style.top) + puckVerticalSpeed
+    }
 
-    puck.style.left = newPosition + "%";
-
-    if(newPosition >= puckMaxRight) {
-        newPosition = puckMaxRight;
+    if(newPosition.left >= puckMaxRight) {
+        newPosition.left = puckMaxRight;
         registerGoal();
     }
 
-    if(newPosition <= puckMaxLeft) {
-        newPosition = puckMaxLeft;
+    if(newPosition.left <= puckMaxLeft) {
+        newPosition.left = puckMaxLeft;
         registerGoal();
     }
+    
+    if(newPosition.top <= puckMinVertical) {
+        newPosition.top = puckMinVertical + 1;
+        puckVerticalSpeed = puckVerticalSpeed * -1;
+    }
+    
+    if(newPosition.top >= puckMaxVertical) {
+        newPosition.top = puckMaxVertical - 1;
+        puckVerticalSpeed = puckVerticalSpeed * -1;
+    }
+
+    puck.style.left = newPosition.left + "%";
+    puck.style.top = newPosition.top + "%";
 }
 
 const detectHit = () => {
@@ -270,6 +286,33 @@ const elementsOverlap = (el1, el2) => {
 
 const returnPuck = () => {
     puckHorizontalSpeed = puckHorizontalSpeed * -1;
+
+    const posOfPuck = { 
+        left: convertPercentageToInt(puck.style.left),
+        top: convertPercentageToInt(puck.style.top)
+    };
+
+    const posOfPlayer1 = { 
+        left: player1.style.left,
+        top: convertPercentageToInt(player1.style.top)
+    };
+
+    const posOfPlayer2 = { 
+        right: player2.style.right,
+        top: convertPercentageToInt(player2.style.top)
+    };
+
+    let diffInHeight = 0;
+
+    if(posOfPuck.left > 50) {
+        diffInHeight = posOfPlayer2.top - posOfPuck.top;
+    } else {
+        diffInHeight = posOfPlayer1.top - posOfPuck.top;
+    }
+
+    puckVerticalSpeed = ((diffInHeight * 0.5) * -1);
+
+    console.log("diffInHeight: " + diffInHeight);
 }
 
 const resetPuck = () => {
@@ -306,7 +349,7 @@ const restartPuck = (positive) => {
 const registerGoal = () => {
     gameInProgress = false;
 
-    const hitPos = parseInt(puck.style.left.replace("%", ''));
+    const hitPos = convertPercentageToInt(puck.style.left);
 
     if(hitPos > 50) {
         player1Score = player1Score + 1;
@@ -367,6 +410,10 @@ const setupInteractions = () => {
     document.addEventListener("keyup", event => {
         keyUpdate(event);
     });
+}
+
+const convertPercentageToInt = (value) => {
+    return parseInt(value.replace("%", ''));
 }
 
 window.onload = () => {

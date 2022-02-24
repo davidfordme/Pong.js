@@ -311,8 +311,6 @@ const returnPuck = () => {
     }
 
     puckVerticalSpeed = ((diffInHeight * 0.5) * -1);
-
-    console.log("diffInHeight: " + diffInHeight);
 }
 
 const resetPuck = () => {
